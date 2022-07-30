@@ -20,6 +20,9 @@ using Application.Core;
 using API.Extensions;
 using API.Middleware;
 using FluentValidation.AspNetCore;
+using API.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 namespace API
 {
     public class Startup
@@ -34,8 +37,14 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers(options=>{
+                var policy=new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                options.Filters.Add(new AuthorizeFilter(policy));
+            });
             services.AddApplicationServices(_config);
+            services.AddIdentityServices(_config);
+            services.AddScoped<TokenService>();
+            services.AddHttpContextAccessor();
             services.AddControllers().AddFluentValidation(config => 
             {
                 config.RegisterValidatorsFromAssemblyContaining<Create>();
@@ -58,6 +67,8 @@ namespace API
             app.UseRouting();
 
             app.UseCors("CorsPolicy");
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
