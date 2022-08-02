@@ -45,7 +45,6 @@ namespace API.Controllers
             }
             return Unauthorized();
         }
-
         [HttpPost("register")]
         public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDto){
             if(await _userManager.Users.AnyAsync(x=>x.Email==registerDto.Email)){

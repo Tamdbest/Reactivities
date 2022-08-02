@@ -7,6 +7,7 @@ using Domain;
 using Persistence;
 using FluentValidation;
 using Application.Core;
+using Application.Interfaces;
 namespace Application.Activities
 {
     public class Create
@@ -23,14 +24,22 @@ namespace Application.Activities
         public class Handler:IRequestHandler<Command,Result<Unit>>
         {
             private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IUserAccessor _accessor;
+            public Handler(DataContext context,IUserAccessor accessor)
             {
                 _context = context;
-                
+                _accessor=accessor;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
+                var user= _context.Users.FirstOrDefault(x=>x.UserName==_accessor.GetUserName());
+                var activityAttendee=new ActivityAttendee{
+                    AppUser=user,
+                    Activity=request.Activity,
+                    IsHost=true
+                };
+                request.Activity.Attendees.Add(activityAttendee);
                 _context.Activities.Add(request.Activity);
                 if(await _context.SaveChangesAsync()>0){
                     return Result<Unit>.Success(Unit.Value);

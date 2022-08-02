@@ -38,7 +38,7 @@ namespace Application.Activities
                 _mapper.Map(request.Activity,activity);
                 //_context.Activities.Update(request.Activity);
                 if(await _context.SaveChangesAsync()>0){
-                    Result<Unit>.Success(Unit.Value);
+                    return Result<Unit>.Success(Unit.Value);
                 }
                 return Result<Unit>.Failure("Failed to update activity");;
             }

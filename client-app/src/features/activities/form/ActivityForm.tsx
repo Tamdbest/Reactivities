@@ -4,7 +4,7 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { Button, Header, Segment } from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
-import { Activity } from "../../../app/models/activity";
+import { Activity, ActivityFormValues } from "../../../app/models/activity";
 import { Store } from "../../../app/store/store";
 import { Formik ,Form} from "formik";
 import * as Yup from 'yup'
@@ -23,13 +23,7 @@ export default observer(function ActivityForm(){
     const history=useHistory();
     const {activityStore}=Store();
     const {id}=useParams<{id:string}>();
-    const[activity,SetActivity]=useState<Activity>({id: '',
-        title: '',
-        date: null,
-        description: '',
-        category: '',
-        city: '',
-        venue: ''});
+    const[activity,SetActivity]=useState<ActivityFormValues>(new ActivityFormValues());
 
     const validationSchema=Yup.object({
         title:Yup.string().required('The activity title is requird'),
@@ -45,8 +39,8 @@ export default observer(function ActivityForm(){
     //const[activity,SetActivity]=useState(initialState);
     useEffect(() => {
         if(id){
-            activityStore.loadActivity(id).then((res)=>{
-                SetActivity(res!);
+            activityStore.loadActivity(id).then((activity)=>{
+                SetActivity(new ActivityFormValues(activity));
             });   
         } 
     }, [id,activityStore.loadActivity])
@@ -56,8 +50,8 @@ export default observer(function ActivityForm(){
     //     SetActivity({...activity,[name]:value});
     // }
 
-    var handleFormSubmit=(activity:Activity)=>{
-        if(activity.id.length===0){
+    var handleFormSubmit=(activity:ActivityFormValues)=>{
+        if(!activity.id){
             let newActivity={...activity,id:uuid()};
             activityStore.createActivity(newActivity).then(()=>{
                 history.push(`/activities/${newActivity.id}`);
