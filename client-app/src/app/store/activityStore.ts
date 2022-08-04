@@ -33,9 +33,9 @@ export default class ActivityStore{
     //     this.selectedActivity=this.activityRegistry.get(id);
     // }
 
-    // cancelSelection=()=>{
-    //     this.selectedActivity=undefined;
-    // }
+    cancelSelection=()=>{
+        this.selectedActivity=undefined;
+    }
 
     setSubmitting=(value:boolean)=>{
         this.submitting=value;
@@ -208,5 +208,21 @@ export default class ActivityStore{
                 this.submitting = false;
             })
         }
+    }
+    followOrUnfollow=(username:string)=>{
+        this.activityRegistry.forEach(x=>{
+            x.attendees.forEach(y=>{
+                if(y.username===username){
+                    if(y.following){
+                        y.following=false;
+                        y.followersCount--;
+                    }
+                    else{
+                        y.following=true;
+                        y.followersCount++;
+                    }
+                }
+            })
+        })
     }
 }

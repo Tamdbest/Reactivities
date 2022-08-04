@@ -22,6 +22,7 @@ import NotFound from '../../features/errors/NotFound';
 import ServerError from '../../features/errors/ServerError';
 import LoginForm from '../../features/users/LoginForm';
 import ModalContainer from '../common/modals/ModalContainer';
+import ProfilePage from '../../features/profile/ProfilePage';
 function App() {
   const {commonStore,userStore}=Store();
   const location=useLocation();
@@ -98,6 +99,7 @@ function App() {
             <Route exact path='/' component={HomePage}/> 
             <Route exact path='/activities' component={ActivityDashboard}/>
             <Route exact path='/activities/:id' component={ActivityDetails}/>
+            <Route exact path='/profiles/:username' component={ProfilePage}/>
             <Route key={location.key} exact path={['/create','/manage/:id']} component={ActivityForm}/>
             <Route exact path='/errors' component={TestErrors}/>
             <Route exact path='/server-error' component={ServerError}/>

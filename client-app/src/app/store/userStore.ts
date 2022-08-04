@@ -2,6 +2,7 @@ import userEvent from "@testing-library/user-event";
 import { makeAutoObservable, runInAction } from "mobx";
 import { history } from "../..";
 import agent from "../api/agent";
+import { Profile } from "../models/profiles";
 import { User, UserFormValues } from "../models/user";
 import { Store, store } from "./store";
 
@@ -32,6 +33,7 @@ export default class UserStore{
         store.commonStore.setToken(null);
         window.localStorage.removeItem('jwt');
         this.user=null;
+        store.activityStore.activityRegistry.clear();
         history.push('/');
     }
     register=async (info:UserFormValues)=>{
@@ -58,4 +60,13 @@ export default class UserStore{
             console.log(err);
         }
     }
+    setImage = (image: string) => {
+        if (this.user) this.user.image = image;
+    }
+    setDisplayName=(obj:Partial<Profile>)=>{
+        if(this.user){
+            this.user.displayName=obj.displayName!;
+            this.user.bio=obj.bio;
+        }
+    } 
 }

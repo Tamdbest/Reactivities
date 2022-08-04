@@ -6,6 +6,7 @@ using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using Application.Interfaces;
 
 namespace Application.Profiles
 {
@@ -20,15 +21,18 @@ namespace Application.Profiles
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
-            public Handler(DataContext context, IMapper mapper)
+
+            private readonly IUserAccessor _userAccessor;
+            public Handler(DataContext context, IMapper mapper,IUserAccessor userAccessor)
             {
                 _mapper = mapper;
                 _context = context;
+                _userAccessor=userAccessor;
             }
 
             public async Task<Result<Profile>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var profile=await _context.Users.ProjectTo<Profiles.Profile>(_mapper.ConfigurationProvider).SingleOrDefaultAsync(x=>x.Username==request.Username);
+                var profile=await _context.Users.ProjectTo<Profiles.Profile>(_mapper.ConfigurationProvider,new{username=_userAccessor.GetUserName()}).SingleOrDefaultAsync(x=>x.Username==request.Username);
                 if(profile==null)
                     return null;
                 return Result<Profile>.Success(profile);

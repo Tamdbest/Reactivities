@@ -1,7 +1,9 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
+import { request } from "http";
 import { toast } from "react-toastify";
 import { history } from "../..";
 import { Activity, ActivityFormValues } from "../models/activity";
+import { Photo, Profile } from "../models/profiles";
 import { User, UserFormValues } from "../models/user";
 import { store } from "../store/store";
 import UserStore from "../store/userStore";
@@ -82,9 +84,25 @@ const Account={
     login:(obj:UserFormValues)=>requests.post<User>('/account/login',obj),
     register:(obj:UserFormValues)=>requests.post<User>('/account/register',obj)
 }
+const Profiles={
+    get:(username:string)=>requests.get<Profile>(`/profiles/${username}`),
+    edit:(obj:Partial<Profile>)=>requests.put<void>(`/profiles`,obj),
+    uploadPhoto: (file: Blob) => {
+        let formData = new FormData();
+        formData.append('File', file);
+        return axios.post<Photo>('/photos', formData, {
+            headers: {'Content-type': 'multipart/form-data'}
+        })
+    },
+    setMainPhoto:(id:string)=>requests.post(`/photos/${id}/setmain`,{}),
+    deletePhoto:(id:string)=>requests.del(`/photos/${id}`),
+    follow:(username:string)=>requests.post(`/follow/${username}`,{}),
+    getFollowings:(username:string,predicate:string)=>requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`)
+}
 const agent={
     Activities,
-    Account
+    Account,
+    Profiles
 }
 
 export default agent;

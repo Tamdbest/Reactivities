@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Domain;
 using API.DTOs;
 using API.Services;
+using Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,17 +27,20 @@ namespace API.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly TokenService _tokenService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly DataContext _context;
 
-        public AccountController(UserManager<AppUser> userManager,SignInManager<AppUser> signInManager,TokenService tokenService,IHttpContextAccessor httpContextAccessor)
+        public AccountController(UserManager<AppUser> userManager,SignInManager<AppUser> signInManager,TokenService tokenService,IHttpContextAccessor httpContextAccessor,DataContext context)
         {
             _userManager=userManager;
             _signInManager=signInManager;
             _tokenService=tokenService;
             _httpContextAccessor=httpContextAccessor;
+            _context=context;
         }
         [HttpPost("login")]
         public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDto){
-            var user=await _userManager.FindByEmailAsync(loginDto.Email);
+            //var user=await _userManager.FindByEmailAsync(loginDto.Email);
+            var user=await _context.Users.Include(x=>x.Photos).FirstOrDefaultAsync(y=>y.Email==loginDto.Email);
             if(user==null)
                 return Unauthorized();
             var result=await _signInManager.CheckPasswordSignInAsync(user,loginDto.Password,false);
@@ -70,14 +74,15 @@ namespace API.Controllers
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<UserDTO>> GetCurrentUser(){
-            var user=await _userManager.FindByEmailAsync(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email));
+            //var user=await _userManager.FindByEmailAsync(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email));
+            var user=await _context.Users.Include(x=>x.Photos).FirstOrDefaultAsync(y=>y.Email==_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email));
             return CreateUserDTO(user);
         }
         public UserDTO CreateUserDTO(AppUser user){
             return new UserDTO{
                 DisplayName=user.DisplayName,
                 Token=_tokenService.CreateToken(user),
-                Image=null,
+                Image=user.Photos?.FirstOrDefault(x=>x.IsMain)?.Url,
                 Username=user.UserName
             };
         }
