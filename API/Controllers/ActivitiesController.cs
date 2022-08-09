@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using MediatR;
 using Application.Activities;
 using Microsoft.AspNetCore.Authorization;
+using Application.Core;
 using static Application.Activities.Create;
 
 namespace API.Controllers
@@ -17,8 +18,8 @@ namespace API.Controllers
     public class ActivitiesController:BaseApiController
     {
         [HttpGet]
-        public async Task<IActionResult> GetActivities(){
-            return HandleResult(await Mediator.Send(new List.Query()));
+        public async Task<IActionResult> GetActivities([FromQuery] ActivityParams param){
+            return HandlePagedResult(await Mediator.Send(new List.Query{Params=param}));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetActivity(Guid id){
