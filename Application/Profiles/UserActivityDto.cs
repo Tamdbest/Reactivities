@@ -10,7 +10,7 @@ namespace Application.Profiles
         public string Category { get; set; }
         public DateTime Date { get; set; }
 
-        [JsonIgnore]
-        public string HostUsername { get; set; }
+        // [JsonIgnore]
+        // public string HostUsername { get; set; }
     }
 }

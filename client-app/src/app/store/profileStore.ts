@@ -1,6 +1,7 @@
+import { Agent } from "http";
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import agent from "../api/agent";
-import { Photo, Profile } from "../models/profiles";
+import { Photo, Profile, UserActivity } from "../models/profiles";
 import { store } from "./store";
 
 export default class ProfileStore{
@@ -11,7 +12,8 @@ export default class ProfileStore{
     followings: Profile[] = [];
     loadingFollowings = false;
     activeTab = 0;
-
+    userActivities:UserActivity[]=[];
+    loadingActivities=false;
     constructor(){
         makeAutoObservable(this);
         reaction(
@@ -20,8 +22,10 @@ export default class ProfileStore{
                 if (activeTab === 4 || activeTab === 3) {
                     const predicate = activeTab === 3 ? 'followers' : 'following';
                     this.loadFollowing(predicate);
-                } else {
+                }
+                if(activeTab!==4&&activeTab!==3&&activeTab!==2) {
                     this.followings = [];
+                    this.userActivities=[];
                 }
             }
         )
@@ -31,6 +35,22 @@ export default class ProfileStore{
             return this.profile.username===store.userStore.user.username;
         }
         return false;
+    }
+    loadUserActivities=async(username:string,predicate:string|null=null)=>{
+        this.loadingActivities=true;
+        try{
+            const acts=await agent.Profiles.getUserActivities(username,predicate);
+            runInAction(()=>{
+                this.userActivities=acts;
+                this.loadingActivities=false;
+            })
+        }
+        catch(err){
+            console.log(err);
+            runInAction(()=>{
+                this.loadingActivities=false;
+            })
+        }
     }
     loadProfile=async(username:string)=>{
         this.loadingProfile=true;

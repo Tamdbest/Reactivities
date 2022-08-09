@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { history } from "../..";
 import { Activity, ActivityFormValues } from "../models/activity";
 import { PaginatedResult, PagingParams } from "../models/pagination";
-import { Photo, Profile } from "../models/profiles";
+import { Photo, Profile, UserActivity } from "../models/profiles";
 import { User, UserFormValues } from "../models/user";
 import { store } from "../store/store";
 import UserStore from "../store/userStore";
@@ -103,7 +103,8 @@ const Profiles={
     setMainPhoto:(id:string)=>requests.post(`/photos/${id}/setmain`,{}),
     deletePhoto:(id:string)=>requests.del(`/photos/${id}`),
     follow:(username:string)=>requests.post(`/follow/${username}`,{}),
-    getFollowings:(username:string,predicate:string)=>requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`)
+    getFollowings:(username:string,predicate:string)=>requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`),
+    getUserActivities:(username:string,predicate:string|null)=>requests.get<UserActivity[]>(`/profiles/${username}/activities?predicate=${predicate}`)
 }
 const agent={
     Activities,
