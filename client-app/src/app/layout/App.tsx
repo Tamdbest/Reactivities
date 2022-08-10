@@ -23,6 +23,7 @@ import ServerError from '../../features/errors/ServerError';
 import LoginForm from '../../features/users/LoginForm';
 import ModalContainer from '../common/modals/ModalContainer';
 import ProfilePage from '../../features/profile/ProfilePage';
+import PrivateRoute from './PrivateRoute';
 function App() {
   const {commonStore,userStore}=Store();
   const location=useLocation();
@@ -97,13 +98,13 @@ function App() {
         <Container style={{marginTop:'7em'}}>
           <Switch>
             <Route exact path='/' component={HomePage}/> 
-            <Route exact path='/activities' component={ActivityDashboard}/>
-            <Route exact path='/activities/:id' component={ActivityDetails}/>
-            <Route exact path='/profiles/:username' component={ProfilePage}/>
-            <Route key={location.key} exact path={['/create','/manage/:id']} component={ActivityForm}/>
-            <Route exact path='/errors' component={TestErrors}/>
+            <PrivateRoute exact path='/activities' component={ActivityDashboard}/>
+            <PrivateRoute exact path='/activities/:id' component={ActivityDetails}/>
+            <PrivateRoute exact path='/profiles/:username' component={ProfilePage}/>
+            <PrivateRoute key={location.key} exact path={['/create','/manage/:id']} component={ActivityForm}/>
+            <PrivateRoute exact path='/errors' component={TestErrors}/>
             <Route exact path='/server-error' component={ServerError}/>
-            <Route exact path='/login' component={LoginForm}/>
+            {/* <Route exact path='/login' component={LoginForm}/> */}
             <Route component={NotFound}/>
           </Switch>
         </Container> 
